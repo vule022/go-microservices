@@ -3,6 +3,7 @@ package handlers
 import (
 	"go-microservices/internal/api/rest"
 	"go-microservices/internal/dto"
+	"go-microservices/internal/repository"
 	"go-microservices/internal/service"
 	"net/http"
 
@@ -16,14 +17,16 @@ type UserHandler struct {
 func SetupUserRoutes(rh *rest.RestHandler) {
 	app := rh.App
 
-	svc := service.UserService{}
+	svc := service.UserService{
+		Repo: repository.NewUserRepository(rh.DB),
+	}
 	handler := UserHandler{
 		svc: svc,
 	}
 
 	//Public endpoints
 	app.Post("/register", handler.Register)
-	app.Post("/login", handler.Register)
+	app.Post("/login", handler.Login)
 
 	//Private endpoints
 	app.Get("/verify", handler.GetVerificationCode)
@@ -36,7 +39,7 @@ func SetupUserRoutes(rh *rest.RestHandler) {
 	app.Get("/order", handler.GetOrders)
 	app.Get("/order/:id", handler.GetOrder)
 
-	app.Post("/become-seller", handler.Login)
+	app.Post("/become-seller", handler.BecomeSeller)
 }
 
 func (h *UserHandler) Register(ctx *fiber.Ctx) error {
@@ -62,8 +65,24 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandler) Login(ctx *fiber.Ctx) error {
+	loginInput := dto.UserLogin{}
+	err := ctx.BodyParser(&loginInput)
+
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(&fiber.Map{
+			"message": "provide valid input",
+		})
+	}
+
+	token, err := h.svc.Login(loginInput.Email, loginInput.Password)
+	if err != nil {
+		return ctx.Status(http.StatusUnauthorized).JSON(&fiber.Map{
+			"message": "error on login",
+		})
+	}
+
 	return ctx.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "Login",
+		"message": token,
 	})
 }
 

@@ -4,6 +4,7 @@ import (
 	"go-microservices/config"
 	"go-microservices/internal/api/rest"
 	"go-microservices/internal/api/rest/handlers"
+	"go-microservices/internal/domain"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,6 +22,10 @@ func StartServer(config config.AppConfig) {
 	}
 
 	log.Println("database connected")
+
+	// Run migration
+	db.AutoMigrate(&domain.User{})
+
 	log.Print(db)
 
 	rh := &rest.RestHandler{
