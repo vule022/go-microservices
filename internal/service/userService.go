@@ -156,8 +156,33 @@ func (s UserService) UpdateProfile(id uint, input any) error {
 }
 
 func (s UserService) BecomeSeller(id uint, input dto.SellerInput) (string, error) {
+	user, _ := s.Repo.FindUserById(id)
 
-	return "", nil
+	if user.UserType == domain.SELLER {
+		return "", errors.New("you are already a seller")
+	}
+
+	seller, err := s.Repo.UpdateUser(id, domain.User{
+		FirstName: input.FirstName,
+		LastName:  input.LastName,
+		Phone:     input.PhoneNumber,
+		UserType:  domain.SELLER,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	token, err := s.Auth.GenerateToken(user.ID, user.Email, seller.UserType)
+
+	err = s.Repo.CreateBankAccount(domain.BankAccount{
+		BankAccountNumber: input.BankAccountNumber,
+		SwiftCode:         input.SwiftCode,
+		PaymentType:       input.PaymentType,
+		UserId:            id,
+	})
+
+	return token, err
 }
 
 func (s UserService) FindCart(id uint) ([]interface{}, error) {
