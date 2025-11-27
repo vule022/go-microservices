@@ -5,6 +5,7 @@ import (
 	"go-microservices/internal/api/rest"
 	"go-microservices/internal/api/rest/handlers"
 	"go-microservices/internal/domain"
+	"go-microservices/internal/helper"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -26,11 +27,14 @@ func StartServer(config config.AppConfig) {
 	// Run migration
 	db.AutoMigrate(&domain.User{})
 
+	auth := helper.SetupAuth(config.AppSecret)
+
 	log.Print(db)
 
 	rh := &rest.RestHandler{
-		App: app,
-		DB:  db,
+		App:  app,
+		DB:   db,
+		Auth: auth,
 	}
 
 	setupRoutes(rh)

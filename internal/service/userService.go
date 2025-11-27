@@ -2,15 +2,16 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"go-microservices/internal/domain"
 	"go-microservices/internal/dto"
+	"go-microservices/internal/helper"
 	"go-microservices/internal/repository"
 	"log"
 )
 
 type UserService struct {
 	Repo repository.UserRepository
+	Auth helper.Auth
 }
 
 func (s UserService) findUserByEmail(email string) (*domain.User, error) {
@@ -22,26 +23,40 @@ func (s UserService) findUserByEmail(email string) (*domain.User, error) {
 }
 
 func (s UserService) Register(input dto.UserRegister) (string, error) {
+	hPassword, err := s.Auth.CreateHashedPassword(input.Password)
+
+	if err != nil {
+		return "", err
+	}
+
 	user, err := s.Repo.CreateUser(domain.User{
 		Email:    input.Email,
-		Password: input.Password,
+		Password: hPassword,
 		Phone:    input.Phone,
 	})
 
-	log.Println(user)
-	userInfo := fmt.Sprintf("%v, %v, %v", user.ID, user.Email, user.UserType)
+	if err != nil {
+		return "", errors.New("could not create this user")
+	}
 
-	return userInfo, err
+	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
 func (s UserService) Login(email string, password string) (string, error) {
 	user, err := s.findUserByEmail(email)
 
 	if err != nil {
-		return "", errors.New("user does not exist!")
+		return "", errors.New("user does not exist")
 	}
 
-	return user.Email, nil
+	err = s.Auth.VerifyPassword(password, user.Password)
+
+	if err != nil {
+		log.Println("password not matching")
+		return "", err
+	}
+
+	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
 func (s UserService) GetVerificationCode(e domain.User) (int, error) {

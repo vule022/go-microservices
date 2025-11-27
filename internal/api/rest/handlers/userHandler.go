@@ -19,27 +19,38 @@ func SetupUserRoutes(rh *rest.RestHandler) {
 
 	svc := service.UserService{
 		Repo: repository.NewUserRepository(rh.DB),
+		Auth: rh.Auth,
 	}
+
 	handler := UserHandler{
 		svc: svc,
 	}
 
+	//Add versioning
+	ver := app.Group("/v1")
+
+	//Public routes
+	pubRoutes := ver.Group("/users")
+
 	//Public endpoints
-	app.Post("/register", handler.Register)
-	app.Post("/login", handler.Login)
+	pubRoutes.Post("/register", handler.Register)
+	pubRoutes.Post("/login", handler.Login)
+
+	//Private routes
+	pvtRoutes := pubRoutes.Group("/", rh.Auth.Authorize)
 
 	//Private endpoints
-	app.Get("/verify", handler.GetVerificationCode)
-	app.Post("/verify", handler.Verify)
-	app.Post("/profile", handler.CreateProfile)
-	app.Get("/profile", handler.GetProfile)
+	pvtRoutes.Get("/verify", handler.GetVerificationCode)
+	pvtRoutes.Post("/verify", handler.Verify)
+	pvtRoutes.Post("/profile", handler.CreateProfile)
+	pvtRoutes.Get("/profile", handler.GetProfile)
 
-	app.Get("/cart", handler.GetCart)
-	app.Post("/cart", handler.AddToCart)
-	app.Get("/order", handler.GetOrders)
-	app.Get("/order/:id", handler.GetOrder)
+	pvtRoutes.Get("/cart", handler.GetCart)
+	pvtRoutes.Post("/cart", handler.AddToCart)
+	pvtRoutes.Get("/order", handler.GetOrders)
+	pvtRoutes.Get("/order/:id", handler.GetOrder)
 
-	app.Post("/become-seller", handler.BecomeSeller)
+	pvtRoutes.Post("/become-seller", handler.BecomeSeller)
 }
 
 func (h *UserHandler) Register(ctx *fiber.Ctx) error {
@@ -60,7 +71,8 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": token,
+		"message": "register",
+		"token":   token,
 	})
 }
 
@@ -75,14 +87,17 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 	}
 
 	token, err := h.svc.Login(loginInput.Email, loginInput.Password)
+
 	if err != nil {
 		return ctx.Status(http.StatusUnauthorized).JSON(&fiber.Map{
 			"message": "error on login",
+			"reason":  err,
 		})
 	}
 
 	return ctx.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": token,
+		"message": "login",
+		"token":   token,
 	})
 }
 
@@ -105,8 +120,11 @@ func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
+	user := h.svc.Auth.GetCurrentUser(ctx)
+
 	return ctx.Status(http.StatusOK).JSON(&fiber.Map{
 		"message": "get profile",
+		"user":    user,
 	})
 }
 
