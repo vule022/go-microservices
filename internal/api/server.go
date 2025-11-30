@@ -1,11 +1,11 @@
 package api
 
 import (
-	"go-microservices/config"
-	"go-microservices/internal/api/rest"
-	"go-microservices/internal/api/rest/handlers"
-	"go-microservices/internal/domain"
-	"go-microservices/internal/helper"
+	"go-ecommerce/config"
+	"go-ecommerce/internal/api/rest"
+	"go-ecommerce/internal/api/rest/handlers"
+	"go-ecommerce/internal/domain"
+	"go-ecommerce/internal/helper"
 	"log"
 
 	"github.com/gofiber/fiber/v2"

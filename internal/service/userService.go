@@ -3,12 +3,12 @@ package service
 import (
 	"errors"
 	"fmt"
-	"go-microservices/config"
-	"go-microservices/internal/domain"
-	"go-microservices/internal/dto"
-	"go-microservices/internal/helper"
-	"go-microservices/internal/repository"
-	"go-microservices/pkg/notification"
+	"go-ecommerce/config"
+	"go-ecommerce/internal/domain"
+	"go-ecommerce/internal/dto"
+	"go-ecommerce/internal/helper"
+	"go-ecommerce/internal/repository"
+	"go-ecommerce/pkg/notification"
 	"log"
 	"time"
 )

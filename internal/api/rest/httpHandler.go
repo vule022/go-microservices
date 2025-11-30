@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"go-microservices/config"
-	"go-microservices/internal/helper"
+	"go-ecommerce/config"
+	"go-ecommerce/internal/helper"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"

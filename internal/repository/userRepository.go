@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"go-microservices/internal/domain"
+	"go-ecommerce/internal/domain"
 	"log"
 
 	"gorm.io/gorm"

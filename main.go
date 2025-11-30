@@ -1,8 +1,8 @@
 package main
 
 import (
-	"go-microservices/config"
-	"go-microservices/internal/api"
+	"go-ecommerce/config"
+	"go-ecommerce/internal/api"
 	"log"
 )
 

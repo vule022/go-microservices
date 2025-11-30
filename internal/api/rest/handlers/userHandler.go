@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"go-microservices/internal/api/rest"
-	"go-microservices/internal/dto"
-	"go-microservices/internal/repository"
-	"go-microservices/internal/service"
+	"go-ecommerce/internal/api/rest"
+	"go-ecommerce/internal/dto"
+	"go-ecommerce/internal/repository"
+	"go-ecommerce/internal/service"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"

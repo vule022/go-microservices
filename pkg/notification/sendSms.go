@@ -3,7 +3,7 @@ package notification
 import (
 	"encoding/json"
 	"fmt"
-	"go-microservices/config"
+	"go-ecommerce/config"
 
 	"github.com/twilio/twilio-go"
 	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
