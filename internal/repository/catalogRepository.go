@@ -73,7 +73,7 @@ func (c *catalogRepository) FindCategoryById(id int) (*domain.Category, error) {
 	err := c.db.First(category, id)
 
 	if err != nil {
-		return nil, errors.New("Category not found")
+		return nil, errors.New("category not found")
 	}
 
 	return category, nil
